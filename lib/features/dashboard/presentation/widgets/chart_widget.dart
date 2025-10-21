@@ -29,6 +29,11 @@ class BottleneckBarChart extends StatelessWidget {
               topLeft: Radius.circular(6),
               topRight: Radius.circular(6),
             ),
+            backDrawRodData: BackgroundBarChartRodData(
+              show: true,
+              toY: 100,
+              color: Colors.transparent,
+            ),
           ),
         ],
         showingTooltipIndicators: const [0],
@@ -45,11 +50,13 @@ class BottleneckBarChart extends StatelessWidget {
             getTooltipColor: (BarChartGroupData group) {
               return Colors.black.withAlpha(204);
             },
-
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
               return BarTooltipItem(
                 '${labels[groupIndex]}: ${rod.toY.toStringAsFixed(1)}%',
-                const TextStyle(color: Colors.white, fontSize: 12),
+                const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                ),
               );
             },
           ),
@@ -63,6 +70,7 @@ class BottleneckBarChart extends StatelessWidget {
           topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
+
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -72,12 +80,14 @@ class BottleneckBarChart extends StatelessWidget {
                 child: Text(
                   labels[value.toInt()],
                   style: AppStyles.metricTitle.copyWith(
+                    fontSize: 10,
                     color: AppColors.textDark,
                   ),
                 ),
               ),
             ),
           ),
+
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -91,6 +101,7 @@ class BottleneckBarChart extends StatelessWidget {
             ),
           ),
         ),
+
         gridData: const FlGridData(show: false),
         borderData: FlBorderData(show: false),
 

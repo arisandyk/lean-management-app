@@ -7,12 +7,13 @@ import 'package:lean_health_apps/features/scanner/presentation/id_scanner_screen
 import 'package:lean_health_apps/features/scanner/presentation/stase_scanner_screen.dart';
 import 'package:lean_health_apps/features/debug/presentation/debug_screen.dart';
 import 'package:lean_health_apps/features/debug/presentation/qr_generator_screen.dart';
+import 'package:lean_health_apps/features/splash/presentation/splash_screen.dart';
 import 'package:lean_health_apps/features/patient_log/models/patient_log.model.dart';
 import 'package:lean_health_apps/features/scanner/models/scan_data_model.dart';
-import 'package:lean_health_apps/features/splash/presentation/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Hive.initFlutter();
   Hive.registerAdapter(PatientLogAdapter());
   await Hive.openBox<PatientLog>('patientLogs');
@@ -28,7 +29,7 @@ class LeanHealthApp extends StatelessWidget {
     const Color primaryBlue = AppColors.primaryBlue;
 
     return MaterialApp(
-      title: 'Lean Health',
+      title: 'Arsawan Health App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: primaryBlue,
@@ -65,7 +66,8 @@ class LeanHealthApp extends StatelessWidget {
       initialRoute: '/splash',
       routes: {
         '/splash': (context) => const SplashScreen(),
-        '/onboarding': (context) => const OnboardingScreen(),
+        '/onboarding': (context) =>
+            const OnboardingScreen(),
         '/': (context) => const DashboardScreen(),
         '/scan-id': (context) => const IdScannerScreen(),
         '/scan-stase': (context) {

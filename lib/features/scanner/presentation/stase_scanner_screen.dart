@@ -27,7 +27,6 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
   Duration _elapsedTime = Duration.zero;
   bool _isProcessingScan = false;
 
-  // Stase mapping
   final Map<String, String> staseMap = const {
     'PENDAFTARAN': 'Pendaftaran',
     'KONSULTASI': 'Konsultasi',
@@ -43,6 +42,7 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    cameraController.stop();
     cameraController.dispose();
     super.dispose();
   }
@@ -51,7 +51,6 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
     final patientId = widget.patientData.patientId;
     _currentLog = _dataService.getPatientLog(patientId);
 
-    // Jika log belum ada (harus dibuat di ID Scanner, tapi jaga-jaga)
     if (_currentLog == null) {
       await _dataService.createPatientLog(
         patientId,
@@ -60,7 +59,6 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
       _currentLog = _dataService.getPatientLog(patientId);
     }
 
-    // Cek apakah ada stage yang sedang berjalan untuk melanjutkan timer
     _checkActiveStageAndTimer();
     setState(() {});
   }
@@ -68,21 +66,18 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
   void _checkActiveStageAndTimer() {
     if (_currentLog == null) return;
 
-    // Menentukan stage aktif dan waktu mulai untuk melanjutkan timer
     DateTime? startTime;
     String status = _currentLog!.stageStatus;
 
-    if (status.contains('MENUNGGU_KONSULTASI') &&
+    if (status == 'MENUNGGU_KONSULTASI' &&
         _currentLog!.startTimePendaftaran != null) {
-      // Pasien sedang dalam waktu tunggu Pendaftaran (proses dimulai di ID Scanner)
       _activeStage = 'Pendaftaran';
       startTime = _currentLog!.startTimePendaftaran;
-    } else if (status.contains('SEDANG_KONSULTASI') &&
+    } else if (status == 'SEDANG_KONSULTASI' &&
         _currentLog!.startTimeKonsultasi != null) {
       _activeStage = 'Konsultasi';
       startTime = _currentLog!.startTimeKonsultasi;
-    } else if (status.contains('PROSES_OBAT') &&
-        _currentLog!.startTimeObat != null) {
+    } else if (status == 'PROSES_OBAT' && _currentLog!.startTimeObat != null) {
       _activeStage = 'Obat';
       startTime = _currentLog!.startTimeObat;
     } else {
@@ -125,7 +120,6 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
     final String? rawValue = capture.barcodes.first.rawValue;
     if (rawValue == null || rawValue.isEmpty) return;
 
-    // Nonaktifkan scanner dan mulai proses
     _isProcessingScan = true;
     cameraController.stop();
 
@@ -138,9 +132,14 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
       final currentStatus = _currentLog!.stageStatus;
       String nextAction = '';
 
-      // Tentukan aksi berdasarkan status pasien saat ini dan QR Stase yang di-scan
-      if (currentStatus == 'MENUNGGU_KONSULTASI' && staseKey == 'KONSULTASI') {
-        // Aksi 1: Selesai Pendaftaran dan Mulai Konsultasi
+      if (currentStatus == 'PILIH_PENDAFTARAN' && staseKey == 'PENDAFTARAN') {
+        _currentLog!.startTimePendaftaran = now;
+        _currentLog!.stageStatus = 'MENUNGGU_KONSULTASI';
+        _activeStage = staseMap[staseKey]!;
+        _startTimer(now);
+        nextAction = 'Perekaman DIMULAI (Pendaftaran)';
+      } else if (currentStatus == 'MENUNGGU_KONSULTASI' &&
+          staseKey == 'KONSULTASI') {
         _currentLog!.endTimePendaftaran = now;
         _currentLog!.startTimeKonsultasi = now;
         _currentLog!.stageStatus = 'SEDANG_KONSULTASI';
@@ -149,7 +148,6 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
         _startTimer(now);
         nextAction = 'Selesai Pendaftaran & Mulai Konsultasi';
       } else if (currentStatus == 'SEDANG_KONSULTASI' && staseKey == 'APOTEK') {
-        // Aksi 2: Selesai Konsultasi dan Mulai Obat
         _currentLog!.endTimeKonsultasi = now;
         _currentLog!.startTimeObat = now;
         _currentLog!.stageStatus = 'PROSES_OBAT';
@@ -158,40 +156,61 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
         _startTimer(now);
         nextAction = 'Selesai Konsultasi & Mulai Obat';
       } else if (currentStatus == 'PROSES_OBAT' && staseKey == 'APOTEK') {
-        // Aksi 3: Selesai Obat (Layanan Komplit)
         _currentLog!.endTimeObat = now;
         _currentLog!.stageStatus = 'SELESAI_LAYANAN';
         _activeStage = '';
         _stopTimer();
-        nextAction = 'Layanan Komplit (Data Dikirim ke Dashboard)';
+        nextAction = 'Layanan Komplit (Data Dicatat)';
+
+        await _dataService.updatePatientLog(_currentLog!);
+
+        if (mounted) {
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: const Text('Layanan Selesai'),
+              content: Text(
+                'Pasien ${_currentLog!.id} telah menyelesaikan semua tahapan. Data durasi telah dicatat dan siap dianalisis di Dashboard.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    if (mounted) Navigator.pushReplacementNamed(context, '/');
+                  },
+                  child: const Text('Lihat Dashboard'),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
       } else {
         _showSnackbar(
-          'QR Stase tidak sesuai dengan alur ${currentStatus}!',
+          'QR Stase ($staseKey) tidak sesuai dengan alur $currentStatus!',
           false,
+          3,
         );
-        _resumeScanningAfterDelay();
+        _resumeScanningAfterDelay(3);
         return;
       }
 
       await _dataService.updatePatientLog(_currentLog!);
-      _showSnackbar(nextAction, true);
-
-      // Jika Layanan Selesai, arahkan ke Dashboard
-      if (_currentLog!.stageStatus == 'SELESAI_LAYANAN') {
-        if (mounted) Navigator.pushReplacementNamed(context, '/');
-      }
+      _showSnackbar(nextAction, true, 3);
+      _resumeScanningAfterDelay(3);
     } else {
       _showSnackbar(
         'QR Code yang discan BUKAN QR Stase. Harap Scan QR Stase di lokasi!',
         false,
+        3,
       );
+      _resumeScanningAfterDelay(3);
     }
-
-    _resumeScanningAfterDelay();
   }
 
-  void _resumeScanningAfterDelay() {
-    Future.delayed(const Duration(seconds: 3), () {
+  void _resumeScanningAfterDelay(int seconds) {
+    Future.delayed(Duration(seconds: seconds), () {
       if (mounted) {
         _isProcessingScan = false;
         cameraController.start();
@@ -200,14 +219,22 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
     });
   }
 
-  void _showSnackbar(String message, bool isSuccess) {
+  void _showSnackbar(String message, bool isSuccess, int seconds) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: isSuccess ? AppColors.accentTeal : AppColors.dangerRed,
-        duration: const Duration(seconds: 3),
+        duration: Duration(seconds: seconds),
       ),
     );
+  }
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String hours = twoDigits(duration.inHours);
+    String minutes = twoDigits(duration.inMinutes.remainder(60));
+    String seconds = twoDigits(duration.inSeconds.remainder(60));
+    return "$hours:$minutes:$seconds";
   }
 
   // -----------------------------------------------------
@@ -216,105 +243,104 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Scan Stase Layanan'),
-        backgroundColor: AppColors.primaryBlue,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Stack(
-              // Menggunakan Stack untuk Overlay
-              children: [
-                MobileScanner(
-                  // Hapus properti overlay yang usang
-                  controller: cameraController,
-                  onDetect: _handleScan,
-                ),
-                // CUSTOM OVERLAY SEBAGAI WIDGET DI ATAS MOBILESCANNER
-                Center(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    height: MediaQuery.of(context).size.width * 0.5,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: _isProcessingScan
-                            ? AppColors.dangerRed
-                            : AppColors.accentTeal,
-                        width: 4,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      _isProcessingScan ? 'MEMPROSES...' : 'SCAN QR STASE',
-                      style: AppStyles.headline2.copyWith(
-                        color: AppColors.cardSurface,
-                        backgroundColor: AppColors.textDark.withAlpha(153),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        Navigator.pushReplacementNamed(context, '/scan-id');
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Scan Stase Layanan'),
+          backgroundColor: AppColors.primaryBlue,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () =>
+                Navigator.pushReplacementNamed(context, '/scan-id'),
           ),
-
-          Expanded(
-            flex: 1,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              width: double.infinity,
-              color: AppColors.cardSurface,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              flex: 2,
+              child: Stack(
                 children: [
-                  Text(
-                    'PASIEN: ${widget.patientData.patientId} - ${widget.patientData.patientName}',
-                    style: AppStyles.headline2.copyWith(
-                      color: AppColors.primaryBlue,
-                    ),
+                  MobileScanner(
+                    controller: cameraController,
+                    onDetect: _handleScan,
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    'STATUS: ${_currentStatus}',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: _currentLog?.endTimeObat != null
-                          ? AppColors.successGreen
-                          : AppColors.warningOrange,
+                  // CUSTOM OVERLAY
+                  Center(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      height: MediaQuery.of(context).size.width * 0.5,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: _isProcessingScan
+                              ? AppColors.dangerRed
+                              : AppColors.accentTeal,
+                          width: 4,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        _isProcessingScan ? 'MEMPROSES...' : 'SCAN QR STASE',
+                        style: AppStyles.headline2.copyWith(
+                          color: AppColors.cardSurface,
+                          backgroundColor: AppColors.textDark.withAlpha(153),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    'Waktu Berjalan: ${TimerUtils.formatDuration(_elapsedTime)}',
-                    style: AppStyles.headline1.copyWith(
-                      fontSize: 30,
-                      color: AppColors.dangerRed,
-                    ),
-                  ),
-                  Text(
-                    'Instruksi: Scan QR Stase ${staseMap[_activeStage] ?? 'Pendaftaran'} untuk melanjutkan alur.',
-                    style: AppStyles.metricTitle,
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+
+            Expanded(
+              flex: 1,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                width: double.infinity,
+                color: AppColors.cardSurface,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'PASIEN: ${widget.patientData.patientId} - ${widget.patientData.patientName}',
+                      style: AppStyles.headline2.copyWith(
+                        color: AppColors.primaryBlue,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      'STATUS: $_currentStatus',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: _currentLog?.endTimeObat != null
+                            ? AppColors.successGreen
+                            : AppColors.warningOrange,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      'Waktu Berjalan: ${_formatDuration(_elapsedTime)}',
+                      style: AppStyles.headline1.copyWith(
+                        fontSize: 30,
+                        color: AppColors.dangerRed,
+                      ),
+                    ),
+                    Text(
+                      'Instruksi: Scan QR Stase ${staseMap[_activeStage] ?? 'Pendaftaran'} untuk melanjutkan alur.',
+                      style: AppStyles.metricTitle,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
-  }
-}
-
-// Tambahkan Utils Helper baru untuk Timer Formatting (untuk digunakan di sini)
-class TimerUtils {
-  static String formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String hours = twoDigits(duration.inHours);
-    String minutes = twoDigits(duration.inMinutes.remainder(60));
-    String seconds = twoDigits(duration.inSeconds.remainder(60));
-    return "$hours:$minutes:$seconds";
   }
 }

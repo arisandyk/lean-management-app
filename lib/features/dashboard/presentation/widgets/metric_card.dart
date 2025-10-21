@@ -21,21 +21,32 @@ class MetricCard extends StatelessWidget {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               children: [
-                Icon(icon, color: color, size: 18),
-                const SizedBox(width: 8),
-                Text(title, style: AppStyles.metricTitle),
+                Icon(
+                  icon,
+                  color: color,
+                  size: 14,
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: AppStyles.metricTitle.copyWith(fontSize: 10),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
+            const Spacer(),
             Text(
               value,
-              style: AppStyles.metricValue.copyWith(fontSize: 24, color: color),
+              style: AppStyles.metricValue.copyWith(fontSize: 20, color: color),
             ),
           ],
         ),

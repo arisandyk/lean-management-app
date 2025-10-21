@@ -13,10 +13,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Navigasi otomatis setelah beberapa detik (Simulasi Splash Screen)
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
-        // Navigasi ke Onboarding Screen
         Navigator.pushReplacementNamed(context, '/onboarding');
       }
     });
@@ -30,16 +28,14 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo Caduceus (Gaya HaloDoc)
             const Icon(
-              Icons.local_hospital, // Ganti dengan Icon Caduceus jika ada
+              Icons.local_hospital,
               size: 100,
               color: AppColors.primaryBlue,
             ),
             const SizedBox(height: 20),
-            // Nama Aplikasi
             Text(
-              'Arsawan', // Ganti dengan nama aplikasi Anda
+              'Arsawan',
               style: AppStyles.headline1.copyWith(
                 color: AppColors.primaryBlue,
                 fontSize: 36,
@@ -47,7 +43,6 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 50),
-            // Tombol Swipe ala iOS (dibuat sebagai indikasi visual)
             Container(
               width: 150,
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),

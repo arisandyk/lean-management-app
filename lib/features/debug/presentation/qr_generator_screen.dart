@@ -9,10 +9,14 @@ class QrGeneratorScreen extends StatelessWidget {
     // QR Code untuk Gelang Pasien (ID unik)
     {'title': 'ID Pasien P001 (Gelang)', 'data': 'ID:P001'},
     {'title': 'ID Pasien P002 (Gelang)', 'data': 'ID:P002'},
+    {'title': 'ID Pasien P003 (Gelang)', 'data': 'ID:P003'},
+    {'title': 'ID Pasien P004 (Gelang)', 'data': 'ID:P004'},
+    {'title': 'ID Pasien P005 (Gelang)', 'data': 'ID:P005'},
+    {'title': 'ID Pasien P006 (Gelang)', 'data': 'ID:P006'},
     // QR Code untuk Stase/Lokasi (ID tetap)
-    {'title': 'Stase Pendaftaran', 'data': 'STASE:PENDAFTARAN'},
-    {'title': 'Stase Konsultasi Dokter', 'data': 'STASE:KONSULTASI'},
-    {'title': 'Stase Pengambilan Obat', 'data': 'STASE:APOTEK'},
+    {'title': 'Stase PENDAFTARAN', 'data': 'STASE:PENDAFTARAN'},
+    {'title': 'Stase KONSULTASI', 'data': 'STASE:KONSULTASI'},
+    {'title': 'Stase APOTEK (Obat)', 'data': 'STASE:APOTEK'},
   ];
 
   @override
@@ -28,7 +32,7 @@ class QrGeneratorScreen extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          childAspectRatio: 0.8,
+          childAspectRatio: 0.75,
         ),
         itemCount: qrData.length,
         itemBuilder: (context, index) {
@@ -50,28 +54,30 @@ class QrGeneratorScreen extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
             ),
-            const SizedBox(height: 10),
-            // Widget QrImageView dari package qr_flutter
+            const SizedBox(height: 8),
             QrImageView(
               data: data,
               version: QrVersions.auto,
-              size: 150.0,
+              size: 130.0,
               gapless: false,
               backgroundColor: Colors.white,
               eyeStyle: const QrEyeStyle(
                 eyeShape: QrEyeShape.square,
-                color: AppColors.textDark, // Warna Mata (Kotak Sudut)
+                color: AppColors.textDark,
               ),
               errorStateBuilder: (cxt, err) {
                 return const Center(child: Text('Gagal membuat QR Code!'));
               },
             ),
             const SizedBox(height: 5),
-            Text(
-              data,
-              style: TextStyle(fontSize: 12, color: AppColors.textLight),
+            Expanded(
+              child: Text(
+                data,
+                style: TextStyle(fontSize: 11, color: AppColors.textLight),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),
