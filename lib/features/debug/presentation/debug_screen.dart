@@ -33,6 +33,11 @@ class DebugScreen extends StatelessWidget {
             },
             tooltip: 'Hapus Semua Data',
           ),
+          IconButton(
+            icon: const Icon(Icons.qr_code),
+            onPressed: () => Navigator.pushNamed(context, '/qr'),
+            tooltip: 'Generate QR Codes',
+          ),
         ],
       ),
       body: ValueListenableBuilder<Box<PatientLog>>(

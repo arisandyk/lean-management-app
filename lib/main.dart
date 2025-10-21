@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:lean_health_apps/core/constants/app_colors.dart';
-import 'package:lean_health_apps/core/constants/app_styles.dart';
-import 'package:lean_health_apps/features/dashboard/presentation/dashboard_screen.dart';
-import 'package:lean_health_apps/features/home/presentation/home_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:lean_health_apps/features/patient_log/models/patient_log.model.dart';
+import 'package:lean_health_apps/core/constants/app_colors.dart';
+import 'package:lean_health_apps/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:lean_health_apps/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:lean_health_apps/features/scanner/presentation/id_scanner_screen.dart';
+import 'package:lean_health_apps/features/scanner/presentation/stase_scanner_screen.dart';
 import 'package:lean_health_apps/features/debug/presentation/debug_screen.dart';
+import 'package:lean_health_apps/features/debug/presentation/qr_generator_screen.dart';
+import 'package:lean_health_apps/features/patient_log/models/patient_log.model.dart';
+import 'package:lean_health_apps/features/scanner/models/scan_data_model.dart';
+import 'package:lean_health_apps/features/splash/presentation/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,15 +26,14 @@ class LeanHealthApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const Color primaryBlue = AppColors.primaryBlue;
-    const Color lightGrey = AppColors.lightGreyBackground;
 
     return MaterialApp(
       title: 'Lean Health',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: primaryBlue,
-        scaffoldBackgroundColor: lightGrey,
-        colorScheme: ColorScheme.light(
+        scaffoldBackgroundColor: AppColors.lightGreyBackground,
+        colorScheme: const ColorScheme.light(
           primary: primaryBlue,
           secondary: AppColors.accentTeal,
           surface: AppColors.cardSurface,
@@ -39,7 +42,6 @@ class LeanHealthApp extends StatelessWidget {
           backgroundColor: primaryBlue,
           foregroundColor: AppColors.cardSurface,
           elevation: 0,
-          titleTextStyle: AppStyles.headline2,
         ),
         cardTheme: CardThemeData(
           color: AppColors.cardSurface,
@@ -60,11 +62,18 @@ class LeanHealthApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      initialRoute: '/',
+      initialRoute: '/splash',
       routes: {
+        '/splash': (context) => const SplashScreen(),
+        '/onboarding': (context) => const OnboardingScreen(),
         '/': (context) => const DashboardScreen(),
-        '/input': (context) => const HomeScreen(),
+        '/scan-id': (context) => const IdScannerScreen(),
+        '/scan-stase': (context) {
+          final data = ModalRoute.of(context)!.settings.arguments as ScanData;
+          return StaseScannerScreen(patientData: data);
+        },
         '/debug': (context) => const DebugScreen(),
+        '/qr': (context) => const QrGeneratorScreen(),
       },
     );
   }
