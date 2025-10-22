@@ -30,7 +30,6 @@ class _IdScannerScreenState extends State<IdScannerScreen> {
 
   @override
   void dispose() {
-    // Memastikan controller di-dispose dengan benar saat screen dibuang
     cameraController.stop();
     cameraController.dispose();
     super.dispose();
@@ -61,7 +60,7 @@ class _IdScannerScreenState extends State<IdScannerScreen> {
     if (rawValue == null || rawValue.isEmpty) return;
 
     _isProcessingScan = true;
-    cameraController.stop(); // HENTIKAN KAMERA SEGERA
+    cameraController.stop();
 
     final parts = rawValue.split(':');
     final type = parts[0];
@@ -101,11 +100,9 @@ class _IdScannerScreenState extends State<IdScannerScreen> {
       patientName: currentLog!.namaPasien,
     );
 
-    // SOLUSI BUG LAYAR PUTIH: Tambahkan delay sangat kecil (50 milidetik)
     await Future.delayed(const Duration(milliseconds: 50));
 
     if (mounted) {
-      // Navigasi yang memicu dispose() dari screen ini
       Navigator.pushReplacementNamed(context, '/scan-stase', arguments: data);
     }
   }
@@ -152,13 +149,11 @@ class _IdScannerScreenState extends State<IdScannerScreen> {
               flex: 2,
               child: Stack(
                 children: [
-                  // Tampilkan MobileScanner hanya jika izin diberikan
                   if (_hasPermission)
                     MobileScanner(
                       controller: cameraController,
                       onDetect: _handleScan,
                     ),
-                  // Tampilkan pesan/tombol jika izin belum diberikan
                   if (!_hasPermission)
                     Center(
                       child: ElevatedButton(
@@ -167,7 +162,6 @@ class _IdScannerScreenState extends State<IdScannerScreen> {
                       ),
                     ),
 
-                  // Custom Overlay
                   Center(
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.8,
