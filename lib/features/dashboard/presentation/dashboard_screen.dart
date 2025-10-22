@@ -1,5 +1,3 @@
-// lib/features/dashboard/presentation/dashboard_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -34,10 +32,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    // Tidak perlu memanggil fetch, ValueListenableBuilder akan menangani data
   }
 
-  // Logika Rule-Based (Diperluas)
   String _getRecommendation(Map<String, double> chartData) {
     if (chartData.values.every((v) => v == 0)) {
       return 'Tidak ada data selesai untuk dianalisis. Coba selesaikan minimal 3 pasien.';
@@ -49,13 +45,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final value = bottleneck.value.toStringAsFixed(0);
 
     if (bottleneck.key == 'Pendft' && bottleneck.value >= 40) {
-      return 'TINGGI ($value%): Pendaftaran adalah *bottleneck* utama. Tindakan: **1.** Terapkan sistem janji temu *online*. **2.** Alihkan satu staf ke *triage* pendaftaran pada jam sibuk (08:00-10:00). **3.** Pertimbangkan *self-check-in* melalui kios.';
+      return 'TINGGI ($value%): Pendaftaran adalah *bottleneck* utama. Tindakan: 1. Terapkan sistem janji temu online. 2. Alihkan satu staf ke triage pendaftaran pada jam sibuk (08:00-10:00). 3. Pertimbangkan self-check-in melalui kios.';
     } else if (bottleneck.key == 'Pendft' && bottleneck.value >= 30) {
       return 'SEDANG ($value%): Pendaftaran membutuhkan perhatian. Tindakan: Gunakan satu loket khusus untuk pasien lama (administrasi cepat) dan edukasi pasien tentang kelengkapan dokumen.';
     } else if (bottleneck.key == 'Apotek' && bottleneck.value >= 40) {
-      return 'TINGGI ($value%): Apotek adalah *bottleneck* utama. Tindakan: **1.** Terapkan sistem notifikasi SMS ke pasien saat obat siap. **2.** Standardisasi proses peracikan untuk obat umum (prediksi stok). **3.** Pisahkan loket penyerahan dan pembayaran.';
+      return 'TINGGI ($value%): Apotek adalah bottleneck utama. Tindakan: 1. Terapkan sistem notifikasi SMS ke pasien saat obat siap. 2. Standardisasi proses peracikan untuk obat umum (prediksi stok). 3. Pisahkan loket penyerahan dan pembayaran.';
     } else if (bottleneck.key == 'Apotek' && bottleneck.value >= 30) {
-      return 'SEDANG ($value%): Apotek perlu dioptimalkan. Tindakan: Lakukan pelatihan *cross-training* pada staf untuk membantu pengemasan obat saat jam puncak.';
+      return 'SEDANG ($value%): Apotek perlu dioptimalkan. Tindakan: Lakukan pelatihan cross-training pada staf untuk membantu pengemasan obat saat jam puncak.';
     } else {
       return 'Kinerja Layanan Cukup Efisien. Pertahankan monitoring dan fokus pada pengurangan waktu proses di stase Konsultasi.';
     }
@@ -96,7 +92,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               style: TextStyle(fontStyle: FontStyle.italic),
             )
           else
-            // Menggunakan spread operator pada hasil map tanpa toList()
             ...activePatients.map(
               (log) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -112,7 +107,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        // Mengganti underscore menjadi spasi
                         '${log.namaPasien} - Status: ${log.stageStatus.replaceAll('_', ' ')}',
                         style: AppStyles.metricTitle.copyWith(
                           color: AppColors.textDark,
@@ -189,11 +183,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // -----------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    // ValueListenableBuilder untuk pembaruan real-time dari Hive
     return ValueListenableBuilder<Box<PatientLog>>(
       valueListenable: _dataService.patientLogsListener,
       builder: (context, box, child) {
-        // Panggil analisis setiap kali data di Hive berubah
         final AnalysisResult analysisData = _dataService.analyzeData(
           filter: _timeFilter,
         );
@@ -212,7 +204,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             backgroundColor: AppColors.primaryBlue,
             actions: [
-              // Dropdown Filter Waktu
               Padding(
                 padding: const EdgeInsets.only(right: 16.0),
                 child: DropdownButtonHideUnderline(
@@ -238,7 +229,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         setState(() {
                           _timeFilter = newValue;
                         });
-                        // ValueListenableBuilder akan memicu build dengan filter baru
                       }
                     },
                   ),
@@ -246,7 +236,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-          drawer: _buildDrawer(context), // Pasang Drawer
+          drawer: _buildDrawer(context),
           body: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
               horizontal: 10.0,
@@ -255,11 +245,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Daftar Pasien Sedang Berjalan
                 _buildActivePatientsList(activePatients),
                 const SizedBox(height: 16),
 
-                // Analisis Judul
                 Text('Analisis Durasi Layanan', style: AppStyles.headline1),
                 Text(
                   'Filter: ${_filterOptions[_timeFilter]}',
@@ -269,11 +257,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 10),
 
-                // Metrik Ringkas
                 _buildSummaryGrid(totalAvgTime, patientCount, analysisData),
                 const SizedBox(height: 25),
 
-                // Chart Bottleneck
                 Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(
@@ -303,7 +289,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 const SizedBox(height: 25),
 
-                // Kartu Rekomendasi
                 RecommendationCard(
                   recommendation: _getRecommendation(chartData),
                 ),
