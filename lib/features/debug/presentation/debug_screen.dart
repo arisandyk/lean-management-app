@@ -15,7 +15,7 @@ class DebugScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Isi Database (Hive)'),
+        title: const Text('Riwayat Pasien (History)', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: AppColors.dangerRed,
         actions: [
           IconButton(
@@ -23,20 +23,14 @@ class DebugScreen extends StatelessWidget {
             onPressed: () async {
               final currentContext = context;
               await dataService.clearAllLogs();
+
               if (currentContext.mounted) {
                 ScaffoldMessenger.of(currentContext).showSnackBar(
-                  const SnackBar(
-                    content: Text('Semua Data Pasien TELAH DIHAPUS!'),
-                  ),
+                  const SnackBar(content: Text('Semua Data Pasien TELAH DIHAPUS!')),
                 );
               }
             },
             tooltip: 'Hapus Semua Data',
-          ),
-          IconButton(
-            icon: const Icon(Icons.qr_code),
-            onPressed: () => Navigator.pushNamed(context, '/qr'),
-            tooltip: 'Generate QR Codes',
           ),
         ],
       ),
@@ -47,10 +41,7 @@ class DebugScreen extends StatelessWidget {
 
           if (logs.isEmpty) {
             return Center(
-              child: Text(
-                'Database Kosong. Silakan catat waktu dari Home Screen.',
-                style: AppStyles.metricTitle.copyWith(fontSize: 14),
-              ),
+              child: Text('Tidak ada riwayat pasien selesai.', style: AppStyles.metricTitle.copyWith(fontSize: 14)),
             );
           }
 
@@ -76,30 +67,15 @@ class DebugScreen extends StatelessWidget {
           'ID: ${log.id} - ${log.namaPasien}',
           style: AppStyles.headline2.copyWith(fontSize: 16),
         ),
-        subtitle: Text(
-          'Status: ${log.stageStatus}',
-          style: TextStyle(
-            color: log.endTimeObat != null
-                ? AppColors.successGreen
-                : AppColors.warningOrange,
-          ),
-        ),
+        subtitle: Text('Status: ${log.stageStatus}', style: TextStyle(color: log.endTimeObat != null ? AppColors.successGreen : AppColors.warningOrange)),
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTimeDetail(
-                  'Pendaftaran',
-                  log.startTimePendaftaran,
-                  log.endTimePendaftaran,
-                ),
-                _buildTimeDetail(
-                  'Konsultasi',
-                  log.startTimeKonsultasi,
-                  log.endTimeKonsultasi,
-                ),
+                _buildTimeDetail('Pendaftaran', log.startTimePendaftaran, log.endTimePendaftaran),
+                _buildTimeDetail('Konsultasi', log.startTimeKonsultasi, log.endTimeKonsultasi),
                 _buildTimeDetail('Obat', log.startTimeObat, log.endTimeObat),
               ],
             ),
@@ -111,26 +87,14 @@ class DebugScreen extends StatelessWidget {
 
   Widget _buildTimeDetail(String label, DateTime? start, DateTime? end) {
     final bool isCompleted = start != null && end != null;
-    final double duration = isCompleted
-        ? PatientLog(
-            id: '',
-            namaPasien: '',
-            stageStatus: '',
-          ).calculateDuration(start, end)
-        : 0.0;
+    final double duration = isCompleted ? PatientLog(id: '', namaPasien: '', stageStatus: '').calculateDuration(start, end) : 0.0;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '$label:',
-            style: AppStyles.metricTitle.copyWith(
-              color: AppColors.textDark,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text('$label:', style: AppStyles.metricTitle.copyWith(color: AppColors.textDark, fontWeight: FontWeight.bold)),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -144,12 +108,7 @@ class DebugScreen extends StatelessWidget {
               ),
               Text(
                 'Durasi: ${formatTimeInMinutes(duration)}',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: isCompleted
-                      ? AppColors.primaryBlue
-                      : AppColors.textLight,
-                ),
+                style: TextStyle(fontSize: 13, color: isCompleted ? AppColors.primaryBlue : AppColors.textLight),
               ),
             ],
           ),

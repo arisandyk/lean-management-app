@@ -50,7 +50,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ],
           ),
 
-          // Indikator Titik
           Align(
             alignment: const Alignment(0, 0.85),
             child: Row(
@@ -59,7 +58,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
 
-          // Tombol Next/Mulai
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
@@ -73,7 +71,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       curve: Curves.easeOut,
                     );
                   } else {
-                    // Setelah halaman terakhir, langsung navigasi ke Scanner
                     Navigator.pushReplacementNamed(context, '/scan-id');
                   }
                 },

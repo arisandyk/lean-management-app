@@ -21,7 +21,6 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final LeanDataService _dataService = LeanDataService();
 
-  // State untuk Filter Waktu
   String _timeFilter = 'ALL';
   final Map<String, String> _filterOptions = const {
     'ALL': 'Semua Data',
@@ -45,7 +44,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final value = bottleneck.value.toStringAsFixed(0);
 
     if (bottleneck.key == 'Pendft' && bottleneck.value >= 40) {
-      return 'TINGGI ($value%): Pendaftaran adalah *bottleneck* utama. Tindakan: 1. Terapkan sistem janji temu online. 2. Alihkan satu staf ke triage pendaftaran pada jam sibuk (08:00-10:00). 3. Pertimbangkan self-check-in melalui kios.';
+      return 'TINGGI ($value%): Pendaftaran adalah bottleneck utama. Tindakan: 1. Terapkan sistem janji temu online. 2. Alihkan satu staf ke triage pendaftaran pada jam sibuk (08:00-10:00). 3. Pertimbangkan self-check-in melalui kios.';
     } else if (bottleneck.key == 'Pendft' && bottleneck.value >= 30) {
       return 'SEDANG ($value%): Pendaftaran membutuhkan perhatian. Tindakan: Gunakan satu loket khusus untuk pasien lama (administrasi cepat) dan edukasi pasien tentang kelengkapan dokumen.';
     } else if (bottleneck.key == 'Apotek' && bottleneck.value >= 40) {
@@ -57,9 +56,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  // -----------------------------------------------------
-  // WIDGET UNTUK PASIEN AKTIF
-  // -----------------------------------------------------
   Widget _buildActivePatientsList(List<PatientLog> activePatients) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -124,9 +120,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // -----------------------------------------------------
-  // WIDGET DRAWER (SIDEBAR)
-  // -----------------------------------------------------
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -166,8 +159,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.bug_report),
-            title: const Text('Debug Database'),
+            leading: const Icon(Icons.history),
+            title: const Text('Riwayat Pasien'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/debug');
@@ -178,9 +171,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // -----------------------------------------------------
-  // MAIN BUILD METHOD
-  // -----------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Box<PatientLog>>(

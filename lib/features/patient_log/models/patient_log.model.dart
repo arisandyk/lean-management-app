@@ -11,7 +11,7 @@ class PatientLog extends HiveObject {
   String namaPasien;
 
   @HiveField(2)
-  String stageStatus; // Status saat ini: 'READY', 'PILIH_PENDAFTARAN', dll.
+  String stageStatus;
 
   @HiveField(3)
   DateTime? startTimePendaftaran;

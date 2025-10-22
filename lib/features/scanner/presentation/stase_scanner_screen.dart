@@ -110,10 +110,6 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
     _elapsedTime = Duration.zero;
   }
 
-  // -----------------------------------------------------
-  // LOGIC SCANNING
-  // -----------------------------------------------------
-
   void _handleScan(BarcodeCapture capture) async {
     if (_isProcessingScan || _currentLog == null) return;
 
@@ -148,14 +144,16 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
         _startTimer(now);
         nextAction = 'Selesai Pendaftaran & Mulai Konsultasi';
       } else if (currentStatus == 'SEDANG_KONSULTASI' && staseKey == 'APOTEK') {
-        _currentLog!.endTimeKonsultasi = now;
+        _currentLog!.endTimeKonsultasi =
+            now;
         _currentLog!.startTimeObat = now;
         _currentLog!.stageStatus = 'PROSES_OBAT';
         _activeStage = staseMap[staseKey]!;
         _stopTimer();
         _startTimer(now);
         nextAction = 'Selesai Konsultasi & Mulai Obat';
-      } else if (currentStatus == 'PROSES_OBAT' && staseKey == 'APOTEK') {
+      } else if (currentStatus == 'PROSES_OBAT' &&
+          staseKey == 'SELESAI_LAYANAN') {
         _currentLog!.endTimeObat = now;
         _currentLog!.stageStatus = 'SELESAI_LAYANAN';
         _activeStage = '';
@@ -236,10 +234,6 @@ class _StaseScannerScreenState extends State<StaseScannerScreen> {
     String seconds = twoDigits(duration.inSeconds.remainder(60));
     return "$hours:$minutes:$seconds";
   }
-
-  // -----------------------------------------------------
-  // UI
-  // -----------------------------------------------------
 
   @override
   Widget build(BuildContext context) {

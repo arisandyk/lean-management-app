@@ -66,10 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _elapsedTime = Duration.zero;
   }
 
-  // -----------------------------------------------------
-  // LOGIC TIMER DAN DATABASE
-  // -----------------------------------------------------
-
   Future<void> _handleStageAction(String stage, bool isStart) async {
     if (_currentLog == null) {
       if (isStart) {
@@ -102,19 +98,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final now = DateTime.now();
 
-    // Logika Pencatatan Waktu (Start atau Stop)
     switch (stage) {
       case 'Pendaftaran':
         if (isStart) {
           _currentLog!.startTimePendaftaran = now;
           _currentLog!.stageStatus = 'MENUNGGU_KONSULTASI';
           _activeStage = stage;
-          _startTimer(now); // MULAI TIMER
+          _startTimer(now);
         } else {
           _currentLog!.endTimePendaftaran = now;
           _currentLog!.stageStatus = 'SIAP_KONSULTASI';
           _activeStage = '';
-          _stopTimer(); // STOP TIMER
+          _stopTimer();
         }
         break;
 
@@ -123,12 +118,12 @@ class _HomeScreenState extends State<HomeScreen> {
           _currentLog!.startTimeKonsultasi = now;
           _currentLog!.stageStatus = 'SEDANG_KONSULTASI';
           _activeStage = stage;
-          _startTimer(now); // MULAI TIMER
+          _startTimer(now);
         } else {
           _currentLog!.endTimeKonsultasi = now;
           _currentLog!.stageStatus = 'SIAP_OBAT';
           _activeStage = '';
-          _stopTimer(); // STOP TIMER
+          _stopTimer();
         }
         break;
 
@@ -137,12 +132,12 @@ class _HomeScreenState extends State<HomeScreen> {
           _currentLog!.startTimeObat = now;
           _currentLog!.stageStatus = 'PROSES_OBAT';
           _activeStage = stage;
-          _startTimer(now); // MULAI TIMER
+          _startTimer(now);
         } else {
           _currentLog!.endTimeObat = now;
           _currentLog!.stageStatus = 'SELESAI_LAYANAN';
           _activeStage = '';
-          _stopTimer(); // STOP TIMER
+          _stopTimer();
         }
         break;
     }
@@ -167,7 +162,6 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
-  // Helper untuk Snackbar
   void _showSnackbar(String message, bool isSuccess) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

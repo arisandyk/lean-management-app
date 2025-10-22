@@ -16,7 +16,8 @@ class QrGeneratorScreen extends StatelessWidget {
     // QR Code untuk Stase/Lokasi (ID tetap)
     {'title': 'Stase PENDAFTARAN', 'data': 'STASE:PENDAFTARAN'},
     {'title': 'Stase KONSULTASI', 'data': 'STASE:KONSULTASI'},
-    {'title': 'Stase APOTEK (Obat)', 'data': 'STASE:APOTEK'},
+    {'title': 'Stase APOTEK (Mulai Obat)', 'data': 'STASE:APOTEK'},
+    {'title': 'Selesai LAYANAN TOTAL', 'data': 'STASE:SELESAI_LAYANAN'},
   ];
 
   @override
@@ -65,6 +66,10 @@ class QrGeneratorScreen extends StatelessWidget {
               backgroundColor: Colors.white,
               eyeStyle: const QrEyeStyle(
                 eyeShape: QrEyeShape.square,
+                color: AppColors.textDark,
+              ),
+              dataModuleStyle: const QrDataModuleStyle(
+                dataModuleShape: QrDataModuleShape.square,
                 color: AppColors.textDark,
               ),
               errorStateBuilder: (cxt, err) {
