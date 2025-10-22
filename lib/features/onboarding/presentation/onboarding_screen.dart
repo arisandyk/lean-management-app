@@ -23,7 +23,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           PageView(
             controller: _pageController,
             physics:
-                const NeverScrollableScrollPhysics(), // Nonaktifkan swipe manual
+                const NeverScrollableScrollPhysics(),
             onPageChanged: (int page) {
               setState(() {
                 _currentPage = page;
@@ -38,7 +38,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               _buildPage(
                 title: 'Otomatisasi Lean',
                 subtitle:
-                    'Mengidentifikasi *bottleneck* secara real-time untuk pelayanan yang lebih cepat.',
+                    'Mengidentifikasi bottleneck secara real-time untuk pelayanan yang lebih cepat.',
                 illustration: Icons.local_hospital_outlined,
               ),
               _buildPage(
@@ -101,8 +101,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Ilustrasi & Dokter Terbaik (Gaya HaloDoc)
-          // Di sini Anda bisa menempatkan image dokter Anda jika ada
           Container(
             height: 200,
             color: AppColors.lightGreyBackground,
