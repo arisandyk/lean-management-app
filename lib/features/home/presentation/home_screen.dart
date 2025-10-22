@@ -24,7 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
   PatientLog? _currentLog;
   String _activeStage = '';
 
-  // State untuk Timer Visual
   Timer? _timer;
   Duration _elapsedTime = Duration.zero;
 
@@ -47,11 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _loadActiveLog() {
-    // Di sini Anda bisa menambahkan logic untuk Hive, misalnya:
-    // _currentLog = _dataService.getActiveLog();
   }
 
-  // Timer: Fungsi untuk memulai penghitungan waktu
   void _startTimer(DateTime startTime) {
     _timer?.cancel();
     _elapsedTime = DateTime.now().difference(startTime);
@@ -196,20 +192,16 @@ class _HomeScreenState extends State<HomeScreen> {
       return true;
     }
 
-    // Logic Alur Berantai (Ketika tidak ada yang sedang berjalan, cek alur berikutnya)
     if (!currentlyProcessing) {
       if (stage == 'Pendaftaran') {
-        // Pendaftaran hanya aktif jika log belum dimulai ATAU sudah selesai (untuk memulai yang baru)
         return _currentLog != null && _currentLog!.endTimePendaftaran != null;
       }
       if (stage == 'Konsultasi') {
-        // Konsultasi hanya aktif jika Pendaftaran sudah selesai dan Konsultasi belum selesai
         return _currentLog == null ||
             _currentLog!.endTimePendaftaran == null ||
             _currentLog!.endTimeKonsultasi != null;
       }
       if (stage == 'Obat') {
-        // Obat hanya aktif jika Konsultasi sudah selesai dan Obat belum selesai
         return _currentLog == null ||
             _currentLog!.endTimeKonsultasi == null ||
             _currentLog!.endTimeObat != null;
@@ -219,7 +211,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return false;
   }
 
-  // Format Waktu H:M:S
   String _formatElapsedTime(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     String hours = twoDigits(duration.inHours);
@@ -227,10 +218,6 @@ class _HomeScreenState extends State<HomeScreen> {
     String seconds = twoDigits(duration.inSeconds.remainder(60));
     return "$hours:$minutes:$seconds";
   }
-
-  // -----------------------------------------------------
-  // UI
-  // -----------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -253,7 +240,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header Selamat Datang
             Text(
               'Selamat datang di RS Sehat Selalu Nida',
               style: AppStyles.headline2.copyWith(
@@ -264,7 +250,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 10),
 
-            // Bagian TIMER VISUAL
             if (_activeStage.isNotEmpty)
               Container(
                 padding: const EdgeInsets.all(12),
@@ -293,7 +278,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-            // FORM INPUT PASIEN YANG HILANG (DIKEMBALIKAN DI SINI)
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -334,7 +318,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 30),
 
-            // Tombol Timer Aksi
             ...stages.entries.map((entry) {
               final stage = entry.key;
               final isCurrentlyActive = _activeStage == stage;
