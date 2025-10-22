@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lean_health_apps/core/constants/app_colors.dart';
-import 'package:lean_health_apps/core/constants/app_styles.dart'; // Import AppStyles
+import 'package:lean_health_apps/core/constants/app_styles.dart';
 
 class RecommendationCard extends StatelessWidget {
   final String recommendation;
@@ -25,7 +25,6 @@ class RecommendationCard extends StatelessWidget {
                 SizedBox(width: 8),
                 Text(
                   'Rekomendasi Solusi (Rule-Based)',
-                  // Perbaikan: Menggunakan AppStyles
                   style: AppStyles.headline2,
                 ),
               ],
